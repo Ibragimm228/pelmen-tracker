@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { TrendingUp, Award, Zap, Calendar } from 'lucide-react';
+import { TrendingUp, Award, Target, Calendar, Activity, Trophy, Clock, Zap } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/Card';
 import { Badge } from '@/shared/ui/Badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/Tabs';
@@ -20,165 +20,242 @@ export const Statistics: React.FC<StatisticsProps> = ({
   streak,
   entriesLength
 }) => {
+  const averageDaily = entriesLength > 0 ? Math.round(stats.allTime.count / entriesLength) : 0;
+  
+  const getMasterLevel = (count: number) => {
+    if (count < 100) return { level: 'Новичок', progress: count, next: 100, icon: '🌱', color: 'text-green-500' };
+    if (count < 500) return { level: 'Любитель', progress: count - 100, next: 400, icon: '🍃', color: 'text-blue-500' };
+    if (count < 1000) return { level: 'Эксперт', progress: count - 500, next: 500, icon: '⭐', color: 'text-purple-500' };
+    if (count < 5000) return { level: 'Мастер', progress: count - 1000, next: 4000, icon: '🏆', color: 'text-yellow-500' };
+    return { level: 'Легенда', progress: count - 5000, next: 0, icon: '👑', color: 'text-orange-500' };
+  };
+
+  const masterInfo = getMasterLevel(stats.allTime.count);
+
   return (
-    <Card className="backdrop-blur-sm bg-white/80 border-0 shadow-lg">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <TrendingUp className="h-5 w-5 text-orange-600" />
-          Статистика
-          <Badge className="bg-gradient-to-r from-purple-500 to-pink-500">
+    <Card className="card-modern">
+      <CardHeader className="pb-6">
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-3">
+            <Activity className="h-6 w-6 text-primary" />
+            <span className="text-2xl font-bold">Аналитика</span>
+          </CardTitle>
+          <Badge variant="outline" className="px-3 py-1 text-sm font-medium">
             {getFunnyComment(stats.allTime.count)}
           </Badge>
-        </CardTitle>
+        </div>
       </CardHeader>
-      <CardContent>
-        <Tabs defaultValue="periods" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="periods">По периодам</TabsTrigger>
-            <TabsTrigger value="achievements">Достижения</TabsTrigger>
-            <TabsTrigger value="fun">Веселые факты</TabsTrigger>
+      
+      <CardContent className="space-y-8">
+        <Tabs defaultValue="overview" className="w-full">
+          <TabsList className="grid w-full grid-cols-3 p-1 bg-muted/50 rounded-lg">
+            <TabsTrigger value="overview" className="rounded-md">Обзор</TabsTrigger>
+            <TabsTrigger value="achievements" className="rounded-md">Достижения</TabsTrigger>
+            <TabsTrigger value="insights" className="rounded-md">Инсайты</TabsTrigger>
           </TabsList>
           
-          <TabsContent value="periods" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-3">
-                <div className="flex justify-between items-center p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl hover:from-gray-100 hover:to-gray-200 transition-all duration-200">
-                  <span className="font-semibold">Вчера</span>
-                  <div className="text-right">
-                    <Badge variant="secondary" className="text-sm">{stats.yesterday.count} шт</Badge>
-                    <div className="text-xs text-muted-foreground mt-1">{stats.yesterday.calories} кал</div>
-                  </div>
-                </div>
-                
-                <div className="flex justify-between items-center p-4 bg-gradient-to-r from-blue-50 to-blue-100 rounded-xl hover:from-blue-100 hover:to-blue-200 transition-all duration-200">
-                  <span className="font-semibold">Неделя</span>
-                  <div className="text-right">
-                    <Badge className="bg-blue-500 text-sm">{stats.week.count} шт</Badge>
-                    <div className="text-xs text-muted-foreground mt-1">{stats.week.calories} кал</div>
-                  </div>
-                </div>
-                
-                <div className="flex justify-between items-center p-4 bg-gradient-to-r from-green-50 to-green-100 rounded-xl hover:from-green-100 hover:to-green-200 transition-all duration-200">
-                  <span className="font-semibold">Месяц</span>
-                  <div className="text-right">
-                    <Badge className="bg-green-500 text-sm">{stats.month.count} шт</Badge>
-                    <div className="text-xs text-muted-foreground mt-1">{stats.month.calories} кал</div>
-                  </div>
-                </div>
+          <TabsContent value="overview" className="space-y-6 mt-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="text-center space-y-2 p-4 rounded-lg bg-muted/30 hover-lift">
+                <Calendar className="h-5 w-5 text-muted-foreground mx-auto" />
+                <div className="text-2xl font-bold number-display">{stats.yesterday.count}</div>
+                <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Вчера</div>
               </div>
               
-              <div className="space-y-3">
-                <div className="flex justify-between items-center p-4 bg-gradient-to-r from-purple-50 to-purple-100 rounded-xl hover:from-purple-100 hover:to-purple-200 transition-all duration-200">
-                  <span className="font-semibold">Год</span>
-                  <div className="text-right">
-                    <Badge className="bg-purple-500 text-sm">{stats.year.count} шт</Badge>
-                    <div className="text-xs text-muted-foreground mt-1">{stats.year.calories} кал</div>
+              <div className="text-center space-y-2 p-4 rounded-lg bg-primary/5 hover-lift">
+                <TrendingUp className="h-5 w-5 text-primary mx-auto" />
+                <div className="text-2xl font-bold number-display text-primary">{stats.week.count}</div>
+                <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Неделя</div>
+              </div>
+              
+              <div className="text-center space-y-2 p-4 rounded-lg bg-accent/5 hover-lift">
+                <Target className="h-5 w-5 text-accent mx-auto" />
+                <div className="text-2xl font-bold number-display text-accent">{stats.month.count}</div>
+                <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Месяц</div>
+              </div>
+              
+              <div className="text-center space-y-2 p-4 rounded-lg bg-gradient-to-br from-primary/5 to-accent/5 hover-lift">
+                <Trophy className="h-5 w-5 text-gradient-primary mx-auto" />
+                <div className="text-2xl font-bold number-display text-gradient-primary">{stats.allTime.count}</div>
+                <div className="text-xs text-muted-foreground font-medium uppercase tracking-wide">Всего</div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <h4 className="text-lg font-semibold text-foreground mb-4">Детальная статистика</h4>
+              <div className="grid gap-3">
+                {[
+                  { label: 'Вчера', count: stats.yesterday.count, calories: stats.yesterday.calories, color: 'border-l-gray-400' },
+                  { label: 'За неделю', count: stats.week.count, calories: stats.week.calories, color: 'border-l-primary' },
+                  { label: 'За месяц', count: stats.month.count, calories: stats.month.calories, color: 'border-l-accent' },
+                  { label: 'За год', count: stats.year.count, calories: stats.year.calories, color: 'border-l-purple-500' },
+                  { label: 'Всё время', count: stats.allTime.count, calories: stats.allTime.calories, color: 'border-l-gradient-primary' }
+                ].map((item, index) => (
+                  <div key={index} className={`flex items-center justify-between p-4 rounded-lg border-l-4 ${item.color} bg-card hover-lift`}>
+                    <span className="font-medium text-card-foreground">{item.label}</span>
+                    <div className="flex items-center gap-4 text-sm">
+                      <div className="text-right">
+                        <div className="font-bold number-display">{item.count} шт</div>
+                        <div className="text-muted-foreground">{item.calories} кал</div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                
-                <div className="flex justify-between items-center p-4 bg-gradient-to-r from-orange-50 to-red-50 rounded-xl hover:from-orange-100 hover:to-red-100 transition-all duration-200">
-                  <span className="font-semibold">Всё время</span>
-                  <div className="text-right">
-                    <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-sm">{stats.allTime.count} шт</Badge>
-                    <div className="text-xs text-muted-foreground mt-1">{stats.allTime.calories} кал</div>
-                  </div>
-                </div>
-                
-                <div className="p-4 bg-gradient-to-r from-yellow-50 to-amber-50 rounded-xl border border-yellow-200">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Calendar className="h-4 w-4 text-yellow-600" />
-                    <span className="font-semibold text-yellow-800">Средний день</span>
-                  </div>
-                  <div className="text-sm text-yellow-700 font-medium">
-                    {entriesLength > 0 ? Math.round(stats.allTime.count / entriesLength) : 0} пельменей
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
           </TabsContent>
           
-          <TabsContent value="achievements" className="space-y-4">
+          <TabsContent value="achievements" className="space-y-6 mt-6">
+            <Card className="card-modern border border-primary/20">
+              <CardContent className="p-6">
+                <div className="text-center space-y-4">
+                  <div className="text-4xl">{masterInfo.icon}</div>
+                  <div>
+                    <h3 className="text-2xl font-bold text-foreground mb-2">Уровень: {masterInfo.level}</h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      {masterInfo.next > 0 ? `Еще ${masterInfo.next - masterInfo.progress} до следующего уровня` : 'Максимальный уровень достигнут!'}
+                    </p>
+                  </div>
+                  
+                  {masterInfo.next > 0 && (
+                    <div className="space-y-2">
+                      <div className="h-3 bg-muted rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-gradient-to-r from-primary to-accent transition-all duration-1000"
+                          style={{ width: `${(masterInfo.progress / masterInfo.next) * 100}%` }}
+                        />
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {masterInfo.progress}/{masterInfo.next}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-6 bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl border border-yellow-200">
-                <div className="flex items-center gap-2 mb-3">
-                  <Award className="h-6 w-6 text-yellow-600" />
-                  <span className="font-bold text-yellow-800 text-lg">Рекорд дня</span>
-                </div>
-                <div className="text-3xl font-bold text-yellow-700">
-                  {dailyRecord} пельменей 🏆
-                </div>
-              </div>
+              <Card className="card-modern border border-yellow-200 bg-gradient-to-br from-yellow-50/50 to-orange-50/50">
+                <CardContent className="p-6 text-center">
+                  <Award className="h-8 w-8 text-yellow-600 mx-auto mb-3" />
+                  <h4 className="text-lg font-bold text-yellow-800 mb-2">Рекорд дня</h4>
+                  <div className="text-3xl font-black number-display text-yellow-700">
+                    {dailyRecord}
+                  </div>
+                  <p className="text-sm text-yellow-600 mt-1">пельменей за день</p>
+                </CardContent>
+              </Card>
               
-              <div className="p-6 bg-gradient-to-br from-pink-50 to-red-50 rounded-xl border border-pink-200">
-                <div className="flex items-center gap-2 mb-3">
-                  <Zap className="h-6 w-6 text-pink-600" />
-                  <span className="font-bold text-pink-800 text-lg">Серия дней</span>
-                </div>
-                <div className="text-3xl font-bold text-pink-700">
-                  {streak} {streak === 1 ? 'день' : streak < 5 ? 'дня' : 'дней'} 🔥
-                </div>
-              </div>
-            </div>
-            
-            <div className="text-center p-8 bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl border border-indigo-200">
-              <div className="text-xl font-bold text-indigo-800 mb-3">
-                Уровень Пельменного Мастера
-              </div>
-              <div className="text-4xl font-bold text-indigo-600 mb-3">
-                {stats.allTime.count < 100 ? '🐣 Новичок' : 
-                 stats.allTime.count < 500 ? '😊 Любитель' :
-                 stats.allTime.count < 1000 ? '🤤 Эксперт' : 
-                 stats.allTime.count < 5000 ? '👨‍🍳 Мастер' : '🌟 Легенда'}
-              </div>
-              <div className="text-sm text-indigo-600">
-                {stats.allTime.count}/5000 для статуса "Легенда"
-              </div>
+              <Card className="card-modern border border-orange-200 bg-gradient-to-br from-orange-50/50 to-red-50/50">
+                <CardContent className="p-6 text-center">
+                  <Zap className="h-8 w-8 text-orange-600 mx-auto mb-3" />
+                  <h4 className="text-lg font-bold text-orange-800 mb-2">Серия</h4>
+                  <div className="text-3xl font-black number-display text-orange-700">
+                    {streak}
+                  </div>
+                  <p className="text-sm text-orange-600 mt-1">
+                    {streak === 1 ? 'день' : streak < 5 ? 'дня' : 'дней'} подряд
+                  </p>
+                </CardContent>
+              </Card>
             </div>
           </TabsContent>
 
-          <TabsContent value="fun" className="space-y-4">
+          <TabsContent value="insights" className="space-y-6 mt-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-4 bg-gradient-to-r from-cyan-50 to-blue-50 rounded-xl">
-                <div className="text-lg font-semibold text-cyan-800 mb-2">🏃‍♂️ Сжечь калории</div>
-                <div className="text-sm text-cyan-700">
-                  Нужно пробежать ~{Math.round(stats.allTime.calories / 10)} минут, чтобы сжечь все съеденные калории!
-                </div>
-              </div>
-              
-              <div className="p-4 bg-gradient-to-r from-violet-50 to-purple-50 rounded-xl">
-                <div className="text-lg font-semibold text-violet-800 mb-2">⏰ Время на еду</div>
-                <div className="text-sm text-violet-700">
-                  Примерно {Math.round(stats.allTime.count * 0.2)} минут потрачено на поедание пельменей!
-                </div>
-              </div>
-              
-              <div className="p-4 bg-gradient-to-r from-rose-50 to-pink-50 rounded-xl">
-                <div className="text-lg font-semibold text-rose-800 mb-2">🎯 До цели</div>
-                <div className="text-sm text-rose-700">
-                  Еще {Math.max(0, 1000 - stats.allTime.count)} пельменей до статуса "Эксперт"!
-                </div>
-              </div>
-              
-              <div className="p-4 bg-gradient-to-r from-emerald-50 to-green-50 rounded-xl">
-                <div className="text-lg font-semibold text-emerald-800 mb-2">📏 Длина</div>
-                <div className="text-sm text-emerald-700">
-                  {stats.allTime.count > 0 
-                    ? `Если сложить все пельмени в ряд: ${Math.round(stats.allTime.count * 3)} см!`
-                    : "Первый пельмень всегда самый важный! 🥟"
-                  }
-                </div>
-              </div>
+              <Card className="card-modern border border-teal-200 bg-gradient-to-br from-teal-50/30 to-cyan-50/30">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <Activity className="h-6 w-6 text-teal-600" />
+                    <h4 className="text-lg font-bold text-teal-800">Активность</h4>
+                  </div>
+                  <div className="space-y-3 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Средний день:</span>
+                      <span className="font-semibold number-display">{averageDaily} шт</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Время на еду:</span>
+                      <span className="font-semibold">{Math.round(stats.allTime.count * 0.2)} мин</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="card-modern border border-purple-200 bg-gradient-to-br from-purple-50/30 to-indigo-50/30">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <Clock className="h-6 w-6 text-purple-600" />
+                    <h4 className="text-lg font-bold text-purple-800">Калории</h4>
+                  </div>
+                  <div className="space-y-3 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Всего калорий:</span>
+                      <span className="font-semibold number-display">{stats.allTime.calories}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Время бега:</span>
+                      <span className="font-semibold">{Math.round(stats.allTime.calories / 10)} мин</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="card-modern border border-rose-200 bg-gradient-to-br from-rose-50/30 to-pink-50/30">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <Target className="h-6 w-6 text-rose-600" />
+                    <h4 className="text-lg font-bold text-rose-800">Цели</h4>
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    До статуса "Эксперт" осталось:{' '}
+                    <span className="font-bold text-rose-700 number-display">
+                      {Math.max(0, 1000 - stats.allTime.count)}
+                    </span>{' '}
+                    пельменей
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="card-modern border border-emerald-200 bg-gradient-to-br from-emerald-50/30 to-green-50/30">
+                <CardContent className="p-6">
+                  <div className="flex items-center gap-3 mb-4">
+                    <Trophy className="h-6 w-6 text-emerald-600" />
+                    <h4 className="text-lg font-bold text-emerald-800">Факты</h4>
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    {stats.allTime.count > 0 
+                      ? `Вес всех пельменей: ~${Math.round(stats.allTime.count / 10)} кг`
+                      : "Начните свое пельменное путешествие!"
+                    }
+                  </div>
+                </CardContent>
+              </Card>
             </div>
-            
-            <div className="text-center p-6 bg-gradient-to-r from-amber-50 to-yellow-50 rounded-xl">
-              <div className="text-2xl mb-2">🎲 Случайный факт</div>
-              <div className="text-lg text-amber-800">
-                {stats.allTime.count > 0 
-                  ? `За все время ты съел пельменей на вес примерно ${Math.round(stats.allTime.count / 10)} кг!`
-                  : "Начни свое пельменное путешествие прямо сейчас! 🥟"
-                }
-              </div>
-            </div>
+
+            {stats.allTime.count > 0 && (
+              <Card className="card-modern bg-gradient-to-br from-amber-50/50 to-yellow-50/50 border border-amber-200">
+                <CardContent className="p-8 text-center">
+                  <div className="text-3xl mb-4">📊</div>
+                  <h4 className="text-xl font-bold text-amber-800 mb-4">Интересная визуализация</h4>
+                  <div className="space-y-4 text-sm text-amber-700">
+                    <p>
+                      Если сложить все ваши пельмени в ряд, получится линия длиной{' '}
+                      <span className="font-bold">{Math.round(stats.allTime.count * 3)} см</span>!
+                    </p>
+                    <div className="h-2 bg-amber-200 rounded-full overflow-hidden max-w-xs mx-auto">
+                      <div 
+                        className="h-full bg-gradient-to-r from-amber-400 to-orange-400 rounded-full"
+                        style={{ width: `${Math.min((stats.allTime.count / 1000) * 100, 100)}%` }}
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Прогресс к километру пельменей
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
         </Tabs>
       </CardContent>

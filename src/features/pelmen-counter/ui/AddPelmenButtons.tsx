@@ -1,8 +1,7 @@
-
-import React from 'react';
-import { Plus } from 'lucide-react';
+import React, { useState } from 'react';
+import { Plus, Package, Utensils, ChefHat } from 'lucide-react';
 import { Button } from '@/shared/ui/Button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/Card';
+import { Card, CardContent } from '@/shared/ui/Card';
 
 interface AddPelmenButtonsProps {
   onAddPelmeni: (count: number) => void;
@@ -13,49 +12,91 @@ export const AddPelmenButtons: React.FC<AddPelmenButtonsProps> = ({
   onAddPelmeni,
   onAddPelmenByWeight
 }) => {
+  const [isClicked, setIsClicked] = useState<string | null>(null);
+
+  const handleClick = (action: () => void, id: string) => {
+    setIsClicked(id);
+    action();
+    setTimeout(() => setIsClicked(null), 200);
+  };
+
+  const weightOptions = [
+    { 
+      weight: 200, 
+      count: '~20', 
+      icon: Utensils,
+      label: 'Порция',
+      description: 'Небольшая порция'
+    },
+    { 
+      weight: 400, 
+      count: '~40', 
+      icon: Package,
+      label: 'Упаковка',
+      description: 'Стандартная упаковка'
+    },
+    { 
+      weight: 1000, 
+      count: '~100', 
+      icon: ChefHat,
+      label: 'Семейная',
+      description: 'Большая порция'
+    }
+  ];
+
   return (
-    <Card className="backdrop-blur-sm bg-white/80 border-0 shadow-lg">
-      <CardHeader className="pb-4">
-        <CardTitle className="text-center text-xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-          Добавить пельмени
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <Button 
-          onClick={() => onAddPelmeni(1)}
-          className="w-full h-16 text-xl font-bold bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 shadow-lg hover:shadow-xl transition-all duration-200"
-        >
-          <Plus className="mr-2 h-6 w-6" />
-          +1 Пельмень 🥟
-        </Button>
-        
-        <div className="grid grid-cols-3 gap-3">
-          <Button 
-            onClick={() => onAddPelmenByWeight(200)}
-            variant="outline"
-            className="h-14 border-2 border-orange-200 hover:bg-orange-50 hover:border-orange-400 transition-all duration-200 flex flex-col justify-center"
-          >
-            <span className="text-lg font-semibold">200г</span>
-            <span className="text-xs text-muted-foreground">~20 шт</span>
-          </Button>
-          <Button 
-            onClick={() => onAddPelmenByWeight(400)}
-            variant="outline"
-            className="h-14 border-2 border-red-200 hover:bg-red-50 hover:border-red-400 transition-all duration-200 flex flex-col justify-center"
-          >
-            <span className="text-lg font-semibold">400г</span>
-            <span className="text-xs text-muted-foreground">~40 шт</span>
-          </Button>
-          <Button 
-            onClick={() => onAddPelmenByWeight(1000)}
-            variant="outline"
-            className="h-14 border-2 border-pink-200 hover:bg-pink-50 hover:border-pink-400 transition-all duration-200 flex flex-col justify-center"
-          >
-            <span className="text-lg font-semibold">1кг</span>
-            <span className="text-xs text-muted-foreground">~100 шт</span>
-          </Button>
+    <div className="space-y-6">
+      <Button 
+        onClick={() => handleClick(() => onAddPelmeni(1), 'single')}
+        className={`w-full h-16 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-300 group border-0 rounded-xl ${
+          isClicked === 'single' ? 'scale-[0.98]' : ''
+        }`}
+      >
+        <div className="flex items-center gap-4">
+          <div className="p-2 bg-white/20 rounded-lg group-hover:bg-white/30 transition-colors duration-200">
+            <Plus className="h-5 w-5" />
+          </div>
+          <div className="text-left">
+            <div className="text-lg font-semibold">Добавить пельмень</div>
+            <div className="text-sm opacity-90">+1 шт</div>
+          </div>
         </div>
-      </CardContent>
-    </Card>
+      </Button>
+
+      <div className="space-y-4">
+        <div className="text-center">
+          <h3 className="text-lg font-semibold text-foreground mb-2">Быстрые порции</h3>
+          <p className="text-sm text-muted-foreground">Добавить по весу</p>
+        </div>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {weightOptions.map((option) => {
+            const IconComponent = option.icon;
+            return (
+              <Button
+                key={option.weight}
+                onClick={() => handleClick(() => onAddPelmenByWeight(option.weight), `weight-${option.weight}`)}
+                variant="outline"
+                className={`h-20 border-2 border-border hover:border-primary/50 hover:bg-primary/5 transition-all duration-200 group rounded-xl ${
+                  isClicked === `weight-${option.weight}` ? 'scale-[0.98]' : ''
+                }`}
+              >
+                <div className="flex flex-col items-center gap-2">
+                  <IconComponent className="h-5 w-5 text-primary group-hover:text-primary transition-colors" />
+                  <div className="text-center">
+                    <div className="text-base font-semibold text-foreground">
+                      {option.weight}г
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      {option.count} шт
+                    </div>
+                  </div>
+                </div>
+              </Button>
+            );
+          })}
+        </div>
+      </div>
+    </div>
   );
 };
